@@ -73,9 +73,20 @@ app.get('/nome/:nome', (req: Request, res: Response, next: NextFunction) => {
 
   axios.get(`${urlAPI}`)
     .then(function (response) {
+    // const comics: Array<any> = response.data.data.results.comics.items;
+    // const HQnomes: Array<any> = comics.map(elem =>  {nome: elem.name}
+    // );
+    // const objRetorno = {
+    //   nome: response.data.data.results.name,
+    //   descricao: response.data.data.results.description,
+    //   imagem: response.data.data.results.thumbnail + ".jpg",
+    //   revistas: [...HQnomes]
+    // };
+    console.log("===============================");
+    //console.log(response.data.results.name);
+    console.log("===============================");
+    res.status(200).send(response);
 
-      const Resp = response.data;
-      return res.status(200).json(Resp);
     })
     .catch(function (error) {
       console.log(error);
@@ -88,36 +99,24 @@ app.get('/pid/:pid', (req: Request, res: Response, next: NextFunction) => {
   let ts, hash:string
   [ ts, hash ] = ts_hash()
 
-  console.log(PerID)
-
   const urlAPI = `http://gateway.marvel.com/v1/public/characters?id=${PerID}&ts=${ts}&apikey=${publicKey}&hash=${hash}`
 
-  console.log(urlAPI)
-
   axios.get(`${urlAPI}`)
-    .then(function (response) {
+  .then(function (response) {
+  const comics: Array<any> = response.data.data.results.comics.items;
+  const HQnomes: Array<any> = comics.map(elem =>  {nome: elem.name}
+  );
+  const objRetorno = {
+    nome: response.data.data.results.name,
+    descricao: response.data.data.results.description,
+    imagem: response.data.data.results.thumbnail + ".jpg",
+    revistas: [...HQnomes]
+  };
+  res.status(200).json(objRetorno);
 
-      const Resp = response.data;
-      return res.status(200).json(Resp);
-    })
-    .catch(function (error) {
-      console.log(error);
-      res.status(500).send("Internal error");
-    })
+  })
+  .catch(function (error) {
+    console.log(error);
+    res.status(500).send("Internal error");
+  })
 })
-
-
-
-
-// ID
-// `http://gateway.marvel.com/v1/public/characters?id=1009351&ts=${timeStamp}&apikey=${publicKey}&hash=${hash}`
-
-// Pagina
-//`http://gateway.marvel.com/v1/public/characters?limit=5&offset=${offset}&ts=${timeStamp}&apikey=${publicKey}&hash=${hash}`
-
-// Nome
-// `http://gateway.marvel.com/v1/public/characters?name=Hulk&ts=${timeStamp}&apikey=${publicKey}&hash=${hash}`
-
-
-
-//https://gateway.marvel.com:443/v1/public/characters/1009351?apikey=cea87fced5b0ce1d5d455fced61c7dbc
