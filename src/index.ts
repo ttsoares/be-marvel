@@ -27,7 +27,6 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/pagina/:inicial/:final', (req: Request, res: Response, next: NextFunction) => {
-
   const PerIni:number = Number(req.params.inicial)
   const PerFin:number = Number(req.params.final)
   const Intervalo:number = PerFin - PerIni;
@@ -60,9 +59,7 @@ app.get('/pagina/:inicial/:final', (req: Request, res: Response, next: NextFunct
       totalPaginas: Math.floor((response.data.data.total/Intervalo)),
       personagens: [...nomes]
     };
-
     res.status(200).json(objRetorno);
-
   })).catch( err => {
     console.log(err);
     res.status(500).send("Internal error");
@@ -78,9 +75,41 @@ app.get('/nome/:nome', (req: Request, res: Response, next: NextFunction) => {
 
   axios.get(`${urlAPI}`)
     .then(function (response) {
+//--------------
+      const PerID:any = response.data.data.results[0].id
+      const descricao:any = response.data.data.results[0].description
+      const imagem:any = response.data.data.results[0].thumbnail.path + "." + response.data.data.results[0].thumbnail.extension
+      const HQs:Array<any> = response.data.data.results[0].comics.items
+      const HQnomes: Array<any> = HQs.map((elem) =>  { return elem.name })
 
-      const Resp = response.data;
-      return res.status(200).json(Resp);
+      let lista_urls:string[] = []
+      let so_o_titulo:string[] = []
+      let listaCapas:string[] = []
+      let Final_URLs_Capas:string[]=[]
+
+      HQnomes.forEach((elm) => {
+        const parentesis:number = elm.indexOf("(")
+        const titulo:string = elm.substring(0, parentesis-1);
+        so_o_titulo.push(titulo)
+      })
+      // so_o_titulo é a lista de títulos com cacteres aa esquerda do primeiro "("
+
+      // remove os titulos repetidos
+      const titulos_unicos = [...new Set(so_o_titulo)];
+
+      TodasCapas(PerID, titulos_unicos, listaCapas).then(response => {
+        Final_URLs_Capas = response
+        const objRetorno = {
+          nome: nome,
+          id: PerID,
+          descricao: descricao,
+          imagem: imagem,
+          titulos: [...titulos_unicos],
+          urls_capas: [...Final_URLs_Capas]
+        };
+        return res.status(200).json(objRetorno);
+      })
+  //---------------
     })
     .catch(function (error) {
       console.log(error);
