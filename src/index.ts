@@ -126,7 +126,7 @@ app.get('/pid/:pid', (req: Request, res: Response, next: NextFunction) => {
           nome: nome,
           descricao: descricao,
           imagem: imagem,
-          titulos: [...HQnomes],
+          titulos: [...titulos_unicos],
           urls_capas: [...Final_URLs_Capas]
         };
         return res.status(200).json(objRetorno);
