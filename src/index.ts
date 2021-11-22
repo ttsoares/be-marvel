@@ -26,6 +26,12 @@ app.listen(port, () => {
 app.use(cors());
 app.use(express.json());
 
+//   teste de funcionamento
+app.get('/', function(req: Request, res: Response){
+  res.send("<h1>FUNCIONANDO</h1)")
+  res.end()
+})
+
 app.get('/pagina/:inicial/:final', (req: Request, res: Response, next: NextFunction) => {
   const PerIni:number = Number(req.params.inicial)
   const PerFin:number = Number(req.params.final)
