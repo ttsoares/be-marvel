@@ -82,7 +82,8 @@ app.get('/nome/:nome', (req: Request, res: Response, next: NextFunction) => {
   axios.get(`${urlAPI}`)
     .then(function (response) {
 //--------------
-      const PerID:any = response.data.data.results[0].id
+      const PerID:any = response.data.data.results[0].i
+      const Teste: Array<any> = response.data.data.results[0].comics.items
       const descricao:any = response.data.data.results[0].description
       const imagem:any = response.data.data.results[0].thumbnail.path + "." + response.data.data.results[0].thumbnail.extension
       const HQs:Array<any> = response.data.data.results[0].comics.items
@@ -110,6 +111,7 @@ app.get('/nome/:nome', (req: Request, res: Response, next: NextFunction) => {
           id: PerID,
           descricao: descricao,
           imagem: imagem,
+          teste: Teste,
           titulos: [...titulos_unicos],
           urls_capas: [...Final_URLs_Capas]
         };
@@ -138,6 +140,7 @@ app.get('/pid/:pid', (req: Request, res: Response, next: NextFunction) => {
       const descricao:any = response.data.data.results[0].description
       const imagem:any = response.data.data.results[0].thumbnail.path + "." + response.data.data.results[0].thumbnail.extension
       const HQs:Array<any> = response.data.data.results[0].comics.items
+      const Teste: Array<any> = response.data.data.results[0].comics.items
       const HQnomes: Array<any> = HQs.map((elem) =>  { return elem.name })
 
       let lista_urls:string[] = []
@@ -162,6 +165,7 @@ app.get('/pid/:pid', (req: Request, res: Response, next: NextFunction) => {
           descricao: descricao,
           imagem: imagem,
           titulos: [...titulos_unicos],
+          teste: Teste,
           urls_capas: [...Final_URLs_Capas]
         };
         return res.status(200).json(objRetorno);
@@ -205,7 +209,7 @@ async function capas (urlAPI:string) {
     // verifica se a URl da image é ...not_available...
     capas_urls.forEach(function (elm2, ind2) {
       tem_not = elm2.indexOf('not');  // o indice ou -1
-      if (tem_not >= 0) capas_urls[ind2] = "../marvel.png"
+      if (tem_not >= 0) capas_urls[ind2] = "semImg"
       URLs.push(capas_urls[ind2])
     })
     return URLs
