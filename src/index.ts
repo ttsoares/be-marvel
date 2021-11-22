@@ -82,12 +82,24 @@ app.get('/nome/:nome', (req: Request, res: Response, next: NextFunction) => {
 
   axios.get(`${urlAPI}`)
     .then(function (response) {
-//--------------
-      const PerID:any = response.data.data.results[0].id
-      const Teste: Array<any> = response.data.data.results[0].comics.items
-      const descricao:any = response.data.data.results[0].description
-      const imagem:any = response.data.data.results[0].thumbnail.path + "." + response.data.data.results[0].thumbnail.extension
-      const HQs:Array<any> = response.data.data.results[0].comics.items
+
+      let PerID:number = response.data.data.results[0].id
+      if (PerID == null || PerID == NaN) PerID = response.data.data.results.id
+
+      let Teste: Array<any> = response.data.data.results[0].comics.items
+      if (Teste.length == 0) Teste = response.data.data.results.comics.items
+
+      let descricao:string = response.data.data.results[0].description
+      if (descricao == "")  descricao = response.data.data.results.description
+      if (descricao == undefined)  descricao = "Sem descrição"
+
+      let imagem:string = response.data.data.results[0].thumbnail.path + "." + response.data.data.results[0].thumbnail.extension
+
+      if (imagem == "") response.data.data.results.thumbnail.path + "." + response.data.data.results.thumbnail.extension
+
+      let HQs:Array<any> = response.data.data.results[0].comics.items
+      if (HQs.length == 0) HQs = response.data.data.results.comics.items
+
       const HQnomes: Array<any> = HQs.map((elem) =>  { return elem.name })
 
       let lista_urls:string[] = []
@@ -105,7 +117,7 @@ app.get('/nome/:nome', (req: Request, res: Response, next: NextFunction) => {
       // remove os titulos repetidos
       const titulos_unicos = [...new Set(so_o_titulo)];
 
-      TodasCapas(PerID, titulos_unicos, listaCapas).then(response => {
+      TodasCapas(PerID, titulos_unicos).then(response => {
         Final_URLs_Capas = response
         const objRetorno = {
           nome: nome,
@@ -137,11 +149,24 @@ app.get('/pid/:pid', (req: Request, res: Response, next: NextFunction) => {
   axios.get(`${urlAPI}`)
     .then( function(response) {
 
-      const nome:any = response.data.data.results[0].name
-      const descricao:any = response.data.data.results[0].description
-      const imagem:any = response.data.data.results[0].thumbnail.path + "." + response.data.data.results[0].thumbnail.extension
-      const HQs:Array<any> = response.data.data.results[0].comics.items
-      const Teste: Array<any> = response.data.data.results[0].comics.items
+      let nome:string = response.data.data.results[0].name
+      if (nome == "") nome = response.data.data.results.name
+
+      let Teste: Array<any> = response.data.data.results[0].comics.items
+      if (Teste.length == 0) Teste = response.data.data.results.comics.items
+
+      let descricao:string = response.data.data.results[0].description
+      if (descricao == "")  descricao = response.data.data.results.description
+      if (descricao == undefined)  descricao = "Sem descrição"
+
+      let imagem:string = response.data.data.results[0].thumbnail.path + "." + response.data.data.results[0].thumbnail.extension
+
+      if (imagem == "") response.data.data.results.thumbnail.path + "." + response.data.data.results.thumbnail.extension
+
+      let HQs:Array<any> = response.data.data.results[0].comics.items
+      if (HQs.length == 0) HQs = response.data.data.results.comics.items
+
+
       const HQnomes: Array<any> = HQs.map((elem) =>  { return elem.name })
 
       let lista_urls:string[] = []
@@ -159,7 +184,11 @@ app.get('/pid/:pid', (req: Request, res: Response, next: NextFunction) => {
       // remove os titulos repetidos
       const titulos_unicos = [...new Set(so_o_titulo)];
 
-      TodasCapas(PerID, titulos_unicos, listaCapas).then(response => {
+      console.log(titulos_unicos)
+
+      TodasCapas(PerID, titulos_unicos).then(response => {
+      //  console.log("<<<<<<<<<<<", response)
+
         Final_URLs_Capas = response
         const objRetorno = {
           nome: nome,
@@ -178,18 +207,31 @@ app.get('/pid/:pid', (req: Request, res: Response, next: NextFunction) => {
     })
 })
 
-async function TodasCapas(PerID:number, titulos:Array<string>, listaCapas:Array<string>){
+async function TodasCapas(PerID:number, titulos:Array<string>){
   let ts: string
   let hash:string
   [ ts, hash ] = ts_hash()
 
+  let listaCapas:string[] = []
+
   for (let tit of titulos) {
     const urlAPI = `http://gateway.marvel.com/v1/public/comics?title=${tit}&characters=${PerID}   &ts=${ts}&apikey=${publicKey}&hash=${hash}`
 
-    await capas(encodeURI(urlAPI)).then(response => {
-      response.forEach(function (el) {
+    const urlAPI_OK = encodeURI(urlAPI)
+
+    //console.log("@@@@@@@@@@@@@@@@@@", urlAPI_OK)
+
+    await capas(`${urlAPI_OK}`)
+    .then(response => {
+
+      //console.log(">>>>>>>>>>>>>>>>>>>", response.length)
+
+      if (response.length > 0 ) {
+        response.forEach(function (el) {
         listaCapas.push(el)
-      })
+        })
+      }
+      else return
     })
   }
   return listaCapas
@@ -201,7 +243,12 @@ async function capas (urlAPI:string) {
   .then(response => {
     let URLs:string[] = []
     const capas:Array<any> = response.data.data.results
+
+    console.log("***************",capas)
+
     const capas_urls = capas.map((elem) => {return (elem.thumbnail.path + "." + elem.thumbnail.extension) })
+
+    console.log(capas_urls)
 
     //capas_urls é um array de URLs de capas de UM dos títulos de comics
 
