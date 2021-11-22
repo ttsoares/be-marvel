@@ -74,6 +74,7 @@ app.get('/pagina/:inicial/:final', (req: Request, res: Response, next: NextFunct
 
 app.get('/nome/:nome', (req: Request, res: Response, next: NextFunction) => {
   const nome:string = String(req.params.nome)
+
   let ts, hash:string
   [ ts, hash ] = ts_hash()
 
@@ -82,7 +83,7 @@ app.get('/nome/:nome', (req: Request, res: Response, next: NextFunction) => {
   axios.get(`${urlAPI}`)
     .then(function (response) {
 //--------------
-      const PerID:any = response.data.data.results[0].i
+      const PerID:any = response.data.data.results[0].id
       const Teste: Array<any> = response.data.data.results[0].comics.items
       const descricao:any = response.data.data.results[0].description
       const imagem:any = response.data.data.results[0].thumbnail.path + "." + response.data.data.results[0].thumbnail.extension
